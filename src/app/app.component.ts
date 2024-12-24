@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
+import {MainComponent} from './layouts/main/main.component';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  standalone: false,
-  styleUrl: './app.component.scss'
+  template: '<app-main></app-main>',
+  standalone: true,
+  imports: [
+    MainComponent
+  ],
 })
 export class AppComponent {
   title = 'website';

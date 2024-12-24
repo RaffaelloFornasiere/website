@@ -1,0 +1,134 @@
+<!--<div class="h-full w-full bg-black absolute inset-0 -z-10 opacity-10">-->
+<!--  <img src="images/background.jpeg" class="absolute inset-0 object-cover h-full w-full">-->
+<!--  <div class="bg-gradient-to-r from-[#000000B0] to-transparent w-full h-full absolute inset-0"></div>-->
+<!--</div>-->
+
+
+<!--<div-->
+<!--  style="user-select: none;"-->
+<!--  class="absolute -z-10 inset-0 w-full h-full text-[#00a000] opacity-30 flex flex-col-reverse overflow-hidden "-->
+<!--  #textContainer>-->
+<!--  <pre>{{ displayText() }}</pre>-->
+<!--</div>-->
+
+<div class="flex flex-col justify-center items-center p-10 text-slate-300 gap-5 w-full">
+  <div class="w-2/3 max-w-[900px] flex flex-col gap-10">
+
+    <div class="flex gap-10 w-full">
+      <div class="rounded-full my-auto w-56 aspect-square border-4 overflow-hidden border-blue-800">
+        <img src="images/me.jpeg" class="object-cover ">
+      </div>
+      <div class="text-4xl font-bold flex flex-col items-center justify-center gap-2">
+        <span class="text-center">
+        Hey, I'm Raffaello Fornasiere
+
+        </span>
+        <div class="text-2xl font-bold">Software Engineer | AI/ML</div>
+        <div class="flex gap-4 items-center">
+          <a href="https://github.com/RaffaelloFornasiere">
+            <img src="https://s.magecdn.com/social/mw-github.svg" width="32" alt="">
+          </a>
+          <a href="www.linkedin.com/in/raffaello-fornasiere">
+            <img src="https://s.magecdn.com/social/mw-linkedin.svg" width="32" alt="">
+          </a>
+          <a href="mailto:fornasiere.raffaello@gmail.com">
+            <img src="https://s.magecdn.com/social/mw-mail.svg" width="32" alt="">
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="drop-shadow-xl ">
+      <div class="font-bold">
+        About Me
+      </div>
+
+      I'm Raffaello Fornasiere, a software engineer specializing in AI/ML and front-end development. My expertise lies
+      in
+      designing and implementing solutions that are both efficient and practical.
+      <br>
+
+      During my academic journey, I focused on the application of Large Language Models for extracting and structuring
+      medical data, with the resulting system tested in Italian hospitals. In my professional role as a lead front-end
+      developer, I focus on building reliable and user-friendly interfaces while contributing to system architecture and
+      back-end integration when necessary.
+      <br>
+
+      Outside of work, I actively explore advancements in AI, with a particular interest in experimenting with Large
+      Language Models and their practical applications across various domains.
+    </div>
+    <div class="drop-shadow-xl flex flex-col gap-2">
+      <div class="font-bold">
+        Project Demos
+      </div>
+      <ul class="list-disc pl-5">
+        <li>
+          <a href=""><span class="font-bold">Medical Data Extraction with LLMs</span></a>
+          – Developed a system tested in hospitals for extracting and structuring clinical information.
+        </li>
+        <li>
+          <span class="font-bold">Tree Structure Search with LLMs (Work in Progress)</span>
+          – Designing an AI system to efficiently search and retrieve data from hierarchical tree structures using Large Language Models.
+        </li>
+      </ul>
+    </div>
+
+    <div class="drop-shadow-xl flex flex-col gap-2">
+      <div class="font-bold">
+        Technologies I'm confident with
+      </div>
+      <code class="grid grid-cols-4 text-sm gap-3">
+
+        @for (skill of skills; track skill.name) {
+          <div class="flex gap-3">
+            >
+            <div class=" justify-between">
+              <span>{{ skill.name }}</span>
+
+              <div class="">
+                @for (level of Array(skill.level).keys(); track $index) {
+                  <span class="text-green-600">&#x25AE;</span>
+                }
+                @for (level of Array(7 - skill.level).keys(); track $index) {
+                  <span>&#x25AF;</span>
+                }
+              </div>
+            </div>
+          </div>
+
+        }
+      </code>
+    </div>
+
+    <div class="drop-shadow-xl">
+      <div class="font-bold">
+        Technologies I'm Learning
+      </div>
+      <code class="grid grid-cols-4 text-sm gap-3">
+
+        @for (skill of learning; track skill.name) {
+          <div class="flex gap-3">
+            >
+            <div class=" justify-between">
+              <span>{{ skill.name }}</span>
+
+              <div class="">
+                @for (level of Array(skill.level).keys(); track $index) {
+                  <span class="text-green-600">&#x25AE;</span>
+                }
+                @for (level of Array(7 - skill.level).keys(); track $index) {
+                  <span>&#x25AF;</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </code>
+    </div>
+
+
+  </div>
+</div>
