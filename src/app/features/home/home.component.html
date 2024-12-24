@@ -11,10 +11,10 @@
 <!--  <pre>{{ displayText() }}</pre>-->
 <!--</div>-->
 
-<div class="flex flex-col justify-center items-center p-10 text-slate-300 gap-5 w-full">
-  <div class="w-2/3 max-w-[900px] flex flex-col gap-10">
+<div class="flex flex-col justify-center items-center lg:p-10 p-3 text-slate-300 gap-5 w-full">
+  <div class="w-5/6 lg:w-2/3 lg:max-w-[900px] flex flex-col gap-10">
 
-    <div class="flex gap-10 w-full">
+    <div class="flex flex-col lg:flex-row gap-10 w-full items-center justify-center">
       <div class="rounded-full my-auto w-56 aspect-square border-4 overflow-hidden border-blue-800">
         <img src="images/me.jpeg" class="object-cover ">
       </div>
@@ -76,14 +76,14 @@
       </ul>
     </div>
 
-    <div class="drop-shadow-xl flex flex-col gap-2">
+    <div class="drop-shadow-xl flex flex-col gap-2 w-full">
       <div class="font-bold">
         Technologies I'm confident with
       </div>
-      <code class="grid grid-cols-4 text-sm gap-3">
+      <code class="flex flex-wrap text-sm gap-3">
 
         @for (skill of skills; track skill.name) {
-          <div class="flex gap-3">
+          <div class="flex gap-3 w-36">
             >
             <div class=" justify-between">
               <span>{{ skill.name }}</span>
@@ -107,10 +107,10 @@
       <div class="font-bold">
         Technologies I'm Learning
       </div>
-      <code class="grid grid-cols-4 text-sm gap-3">
+      <code class="flex flex-wrap text-sm gap-3">
 
         @for (skill of learning; track skill.name) {
-          <div class="flex gap-3">
+          <div class="flex gap-3 w-36">
             >
             <div class=" justify-between">
               <span>{{ skill.name }}</span>
