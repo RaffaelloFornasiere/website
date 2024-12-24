@@ -1,13 +1,13 @@
 # Stage 1: Build the Angular app
-FROM node:16 AS build
+FROM node:20 AS build
 WORKDIR /app
-COPY package*.json ./
+RUN ls
+COPY ../package.json /app
 RUN npm install
-COPY . .
-RUN npm run build --prod
+COPY .. /app
+RUN npm run build --configuration=production
 
-# Stage 2: Serve with NGINX
-FROM nginx:alpine
-COPY --from=build /app/dist/<your-angular-app> /usr/share/nginx/html
+## Stage 2: Serve with NGINX
+FROM nginx:latest
+COPY --from=build /app/dist/website/browser /usr/share/nginx/html
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
