@@ -48,7 +48,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     {name: "TypeScript", level: 6},
     {name: "Java", level: 6},
     {name: "Python", level: 5},
-    {name: "C++", level: 4},
+    {name: "C++", level: 3},
     {name: "Angular", level: 6},
     {name: "Tailwind", level: 7},
     {name: "Docker", level: 3},
