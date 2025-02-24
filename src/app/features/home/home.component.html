@@ -47,8 +47,7 @@
       </div>
 
       I'm Raffaello Fornasiere, a software engineer specializing in AI/ML and front-end development. My expertise lies
-      in
-      designing and implementing solutions that are both efficient and practical.
+      in designing and implementing solutions that are both efficient and practical.
       <br>
 
       During my academic journey, I focused on the application of Large Language Models for extracting and structuring
@@ -65,14 +64,13 @@
         Project Demos
       </div>
       <ul class="list-disc pl-5">
-        <li>
-          <a href=""><span class="font-bold">Medical Data Extraction with LLMs</span></a>
-          – Developed a system tested in hospitals for extracting and structuring clinical information.
-        </li>
-        <li>
-          <a href=""><span class="font-bold">Tree Structure Search with LLMs (Work in Progress)</span></a>
-          – Designing an AI system to efficiently search and retrieve data from hierarchical tree structures using Large Language Models.
-        </li>
+        @for (project of projects; track project.name) {
+          <li>
+            <a [href]="project.link"><span class="font-bold">{{ project.label }}</span></a>
+            – {{ project.description }}
+          </li>
+        }
+
       </ul>
     </div>
 

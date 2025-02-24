@@ -60,6 +60,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
     {name: "Vue", level: 2},
   ]
 
+  projects = [
+    {
+      name: "llmed",
+      label: "Medical Data Extraction with LLMs",
+      description: "Thesis project: Extracting medical data from unstructured text using large language models. (the UI is ugly but these were the requirements)",
+      link: "https://llmed.rf-98.com"
+    },
+    {
+      name: "coming-soon",
+      label: "Coming Soon",
+      description: "More projects coming soon!",
+      link: ""
+    }
+  ]
+
 
   ngOnInit(): void {
     this.http.get('/code.txt', {responseType: 'text'}).subscribe(data => {
