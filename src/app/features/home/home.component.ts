@@ -68,6 +68,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
       link: "https://llmed.rf-98.com"
     },
     {
+      name: "prompt-log",
+      label: "Prompt Log",
+      description: "PromptLog is a tool for managing and keeping track of AI prompts",
+      link: "https://prompt-log.rf-98.com"
+    },
+    {
       name: "coming-soon",
       label: "Coming Soon",
       description: "More projects coming soon!",
