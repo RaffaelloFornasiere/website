@@ -62,6 +62,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   projects = [
     {
+      name: "sage-v2",
+      label: "Sage V2",
+      description: "A proactive AI agent with tool integration, conversation management, and autonomous task handling using Claude",
+    },
+    {
       name: "llmed",
       label: "Medical Data Extraction with LLMs",
       description: "Thesis project: Extracting medical data from unstructured text using large language models. (the UI is ugly but these were the requirements)",
@@ -73,12 +78,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       description: "PromptLog is a tool for managing and keeping track of AI prompts",
       link: "https://prompt-log.rf-98.com"
     },
-    {
-      name: "coming-soon",
-      label: "Coming Soon",
-      description: "More projects coming soon!",
-      link: ""
-    }
   ]
 
 
