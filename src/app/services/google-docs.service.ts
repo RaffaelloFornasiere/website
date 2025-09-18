@@ -16,7 +16,16 @@ export interface ParsedElement {
   items?: string[];
 }
 
+export interface AutoSection {
+  title: string;
+  content: string;
+  elements: ParsedElement[];
+  isList?: boolean;
+}
+
 export interface DocumentContent {
+  sections: AutoSection[];
+  // Legacy interface for backward compatibility
   title?: ParsedSection;
   subtitle?: ParsedSection;
   aboutMe?: ParsedSection;
@@ -38,12 +47,14 @@ export class GoogleDocsService {
   }
 
   private parseDocument(docData: any): DocumentContent {
-    const sections: DocumentContent = {};
+    const autoSections: AutoSection[] = [];
+    const legacySections: DocumentContent = { sections: [] };
     const body = docData.body?.content || [];
 
-    let currentSection: string | null = null;
-    let currentContent: ParsedElement[] = [];
+    let currentSection: AutoSection | null = null;
     let currentText = '';
+    let currentElements: ParsedElement[] = [];
+    let isList = false;
 
     body.forEach((element: any) => {
       if (element.paragraph) {
@@ -51,6 +62,7 @@ export class GoogleDocsService {
         let paragraphText = '';
         const elements: ParsedElement[] = [];
 
+        // Extract text and links from paragraph
         if (paragraph.elements) {
           paragraph.elements.forEach((elem: any) => {
             if (elem.textRun?.content) {
@@ -68,38 +80,81 @@ export class GoogleDocsService {
           });
         }
 
-        const sectionMatch = paragraphText.match(/\[(TITLE|SUBTITLE|ABOUT ME|PROJECT DEMOS)\]/);
+        const trimmedText = paragraphText.trim();
 
-        if (sectionMatch) {
+        // Check if this is a section header (bracketed or could be detected by style in future)
+        const sectionMatch = trimmedText.match(/^\[(.+)\]$/);
+        const isSectionHeader = sectionMatch ||
+          (paragraph.paragraphStyle?.namedStyleType?.includes('HEADING')) ||
+          (paragraph.elements?.[0]?.textRun?.textStyle?.bold && trimmedText.length < 50);
+
+        if (sectionMatch || isSectionHeader) {
+          // Save previous section if exists
           if (currentSection) {
-            this.saveSection(sections, currentSection, currentText, currentContent);
+            currentSection.content = currentText.trim();
+            currentSection.elements = currentElements;
+            currentSection.isList = isList;
+            autoSections.push(currentSection);
+
+            // Also save to legacy format for backward compatibility
+            this.saveLegacySection(legacySections, currentSection.title, currentText, currentElements);
           }
-          currentSection = sectionMatch[1];
-          currentContent = [];
+
+          // Start new section
+          const sectionTitle = sectionMatch ? sectionMatch[1] : trimmedText;
+          currentSection = {
+            title: sectionTitle,
+            content: '',
+            elements: []
+          };
           currentText = '';
-        } else if (currentSection && paragraphText.trim()) {
+          currentElements = [];
+          isList = false;
+        } else if (trimmedText) {
+          // Add content to current section
           if (paragraph.bullet) {
-            currentContent.push({
+            isList = true;
+            currentElements.push({
               type: 'list',
-              content: paragraphText.trim(),
-              items: [paragraphText.trim()]
+              content: trimmedText,
+              items: [trimmedText]
             });
-          } else {
-            currentText += paragraphText;
-            currentContent.push(...elements);
+            // For lists, append with newline for proper formatting
+            currentText += (currentText ? '\n' : '') + '• ' + trimmedText;
+          } else if (currentSection || autoSections.length === 0) {
+            // Regular paragraph - add to current section or create default if none exists
+            if (!currentSection && autoSections.length === 0) {
+              // Create a default section for content before first header
+              currentSection = {
+                title: 'Introduction',
+                content: '',
+                elements: []
+              };
+            }
+            if (currentSection) {
+              currentText += (currentText ? '\n\n' : '') + trimmedText;
+              currentElements.push(...elements);
+            }
           }
         }
       }
     });
 
+    // Save last section if exists
     if (currentSection) {
-      this.saveSection(sections, currentSection, currentText, currentContent);
+      (currentSection as AutoSection).content = currentText.trim();
+      (currentSection as AutoSection).elements = currentElements;
+      (currentSection as AutoSection).isList = isList;
+      autoSections.push(currentSection as AutoSection);
+      this.saveLegacySection(legacySections, (currentSection as AutoSection).title, currentText, currentElements);
     }
 
-    return sections;
+    // Return both new auto-detected sections and legacy format
+    legacySections.sections = autoSections;
+    return legacySections;
   }
 
-  private saveSection(
+  private saveLegacySection(
     sections: DocumentContent,
     sectionName: string,
     text: string,
@@ -111,7 +166,8 @@ export class GoogleDocsService {
       elements: elements.length > 0 ? elements : undefined
     };
 
-    switch (sectionName) {
+    // Map to legacy fields for backward compatibility
+    switch (sectionName.toUpperCase()) {
       case 'TITLE':
         sections.title = section;
         break;

@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {AfterViewInit, Component, effect, ElementRef, inject, NgZone, OnInit, signal, ViewChild} from '@angular/core';
-import {GoogleDocsService, DocumentContent} from '../../services/google-docs.service';
+import {GoogleDocsService, DocumentContent, AutoSection} from '../../services/google-docs.service';
 import {CommonModule} from '@angular/common';
 
 @Component({
@@ -167,6 +167,63 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (parts.length > 1 && !html.includes('<a')) {
       html = `<span class="font-bold">${parts[0]}</span> – ${parts.slice(1).join(' – ')}`;
     }
+
+    return html;
+  }
+
+  getTitleContent(): string {
+    const content = this.documentContent();
+    if (!content) return '';
+
+    // Check for TITLE in sections array
+    const titleSection = content.sections?.find(s => s.title.toUpperCase() === 'TITLE');
+    if (titleSection) return titleSection.content;
+
+    // Fallback to legacy format
+    return content.title?.content || '';
+  }
+
+  getSubtitleContent(): string {
+    const content = this.documentContent();
+    if (!content) return '';
+
+    // Check for SUBTITLE in sections array
+    const subtitleSection = content.sections?.find(s => s.title.toUpperCase() === 'SUBTITLE');
+    if (subtitleSection) return subtitleSection.content;
+
+    // Fallback to legacy format
+    return content.subtitle?.content || '';
+  }
+
+  getContentSections(): AutoSection[] {
+    const content = this.documentContent();
+    if (!content?.sections) return [];
+
+    // Filter out TITLE and SUBTITLE as they're displayed in the header
+    // Also filter out Technologies sections as requested
+    return content.sections.filter(s => {
+      const upperTitle = s.title.toUpperCase();
+      return upperTitle !== 'TITLE' &&
+             upperTitle !== 'SUBTITLE' &&
+             !upperTitle.includes('TECHNOLOGIES');
+    });
+  }
+
+  formatSectionContent(section: AutoSection): string {
+    let html = section.content;
+
+    // Replace links in the content
+    if (section.elements) {
+      section.elements.forEach((element: any) => {
+        if (element.type === 'link' && element.url) {
+          const linkHtml = `<a href="${element.url}" class="font-medium text-slate-300">${element.content}</a>`;
+          html = html.replace(element.content, linkHtml);
+        }
+      });
+    }
+
+    // Convert line breaks to <br>
+    html = html.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
 
     return html;
   }
