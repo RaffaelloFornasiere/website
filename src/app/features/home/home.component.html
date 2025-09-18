@@ -1,140 +1,150 @@
-<!--<div class="h-full w-full bg-black absolute inset-0 -z-10 opacity-10">-->
-<!--  <img src="images/background.jpeg" class="absolute inset-0 object-cover h-full w-full">-->
-<!--  <div class="bg-gradient-to-r from-[#000000B0] to-transparent w-full h-full absolute inset-0"></div>-->
-<!--</div>-->
-
-
-<!--<div-->
-<!--  style="user-select: none;"-->
-<!--  class="absolute -z-10 inset-0 w-full h-full text-[#00a000] opacity-30 flex flex-col-reverse overflow-hidden "-->
-<!--  #textContainer>-->
-<!--  <pre>{{ displayText() }}</pre>-->
-<!--</div>-->
-
 <div class="font-thin flex flex-col justify-center items-center lg:p-10 p-3 text-slate-300 gap-5 w-full">
   <div class="w-5/6 lg:w-2/3 lg:max-w-[900px] flex flex-col gap-10">
 
-    <div class="flex flex-col lg:flex-row gap-10 w-full items-center justify-center">
-      <!--      <div class="rounded-full my-auto w-56 aspect-square border-4 overflow-hidden border-blue-800">-->
-      <!--        <img src="images/me.jpeg" class="object-cover ">-->
-      <!--      </div>-->
-      <div class="text-4xl font-bold flex flex-col items-center justify-center gap-2">
-        <span class="text-center">
-        Hey, I'm Raffaello Fornasiere
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="text-center py-20">
+        <div class="text-xl">Loading content...</div>
+      </div>
+    }
 
-        </span>
-        <div class="text-2xl font-bold">Software Engineer | AI/ML</div>
-        <div class="flex gap-4 items-center">
-          <a href="https://github.com/RaffaelloFornasiere">
-            <img src="https://s.magecdn.com/social/mw-github.svg" width="32" alt="">
-          </a>
-          <a href="https://www.linkedin.com/in/raffaello-fornasiere">
-            <img src="https://s.magecdn.com/social/mw-linkedin.svg" width="32" alt="">
-          </a>
-          <a href="mailto:fornasiere.raffaello@gmail.com">
-            <img src="https://s.magecdn.com/social/mw-mail.svg" width="32" alt="">
-          </a>
+    <!-- Error State -->
+    @if (error()) {
+      <div class="text-center py-20 text-red-400">
+        {{ error() }}
+      </div>
+    }
+
+    <!-- Content -->
+    @if (!loading() && !error()) {
+      <!-- Header Section -->
+      <div class="flex flex-col lg:flex-row gap-10 w-full items-center justify-center">
+        <div class="text-4xl font-bold flex flex-col items-center justify-center gap-2">
+          <span class="text-center">
+            {{ documentContent()?.title?.content || 'Hey, I\'m Raffaello Fornasiere' }}
+          </span>
+          <div class="text-2xl font-bold">
+            {{ documentContent()?.subtitle?.content || 'Software Engineer | AI/ML' }}
+          </div>
+          <div class="flex gap-4 items-center">
+            <a href="https://github.com/RaffaelloFornasiere">
+              <img src="https://s.magecdn.com/social/mw-github.svg" width="32" alt="">
+            </a>
+            <a href="https://www.linkedin.com/in/raffaello-fornasiere">
+              <img src="https://s.magecdn.com/social/mw-linkedin.svg" width="32" alt="">
+            </a>
+            <a href="mailto:fornasiere.raffaello@gmail.com">
+              <img src="https://s.magecdn.com/social/mw-mail.svg" width="32" alt="">
+            </a>
+          </div>
+          <a class="text-sm font-light" href="docs/raffaello_fornasiere_resume.pdf">resume</a>
         </div>
-        <a class="text-sm font-light" href="docs/raffaello_fornasiere_resume.pdf">resume</a>
-
       </div>
 
-    </div>
+      <!-- About Me Section -->
+      @if (documentContent()?.aboutMe) {
+        <div class="drop-shadow-xl">
+          <div class="font-bold">About Me</div>
+          <div [innerHTML]="formatContent(documentContent()!.aboutMe!)"></div>
+        </div>
+      }
 
-    <div class="drop-shadow-xl ">
-      <div class="font-bold">
-        About Me
-      </div>
+      <!-- Project Demos Section -->
+      @if (documentContent()?.projectDemos) {
+        <div class="drop-shadow-xl flex flex-col gap-2">
+          <div class="font-bold">Project Demos</div>
+          <ul class="list-disc pl-5">
+            @for (element of documentContent()!.projectDemos!.elements || []; track $index) {
+              @if (element.type === 'list') {
+                <li [innerHTML]="formatListItem(element.content, documentContent()!.projectDemos!.elements || [])"></li>
+              }
+            }
+          </ul>
+        </div>
+      }
 
+      <!-- Fallback to hardcoded content if no Google Doc content -->
+      @if (!documentContent()) {
+        <!-- Original hardcoded About Me -->
+        <div class="drop-shadow-xl">
+          <div class="font-bold">About Me</div>
+          I'm Raffaello, a software engineer working primarily with AI and language models. Currently collaborating with <a
+          class="font-medium"
+          href="https://openreview.net/profile?id=~William_Saunders1">William Saunders</a> on building autonomous AI agents
+          that handle conversations and task management. The work involves integrating various APIs and designing
+          event-driven systems.
+          <br><br>
+          I work at Infiniteloop as a lead frontend engineer, but work across the entire stack. I've created some framework
+          extensions for JHipster that help with development workflow, architectured and maintained frontend applications,
+          and prototyped some LLM integrations into healthcare application.
+          <br><br>
+          In July 2024 I graduated from <a class="font-medium" href="https://www.polimi.it/">PoliMi</a> with
+          a Master's in Computer Science and Engineering. My thesis focused on exploring the potential of lightweight LLMs
+          for medication and timeline extraction. This work led to <a class="font-medium text-slate-300"
+          href="https://aclanthology.org/2024.icnlsp-1.47/">a
+          published paper on using LLMs to process medical data</a>, and we developed a web application that was tested in
+          Italian hospitals to validate the research.
+        </div>
 
-      I'm Raffaello, a software engineer working primarily with AI and language models. Currently collaborating with <a
-      class="font-medium"
-      href="https://openreview.net/profile?id=~William_Saunders1">William Saunders</a> on building autonomous AI agents
-      that handle conversations and task management. The work involves integrating various APIs and designing
-      event-driven systems.
-      <br>
-      <br>
-      I work at Infiniteloop as a lead frontend engineer, but work across the entire stack. I've created some framework
-      extensions for JHipster that help with development workflow, architectured and maintained frontend applications,
-      and prototyped some LLM integrations into healthcare application.
-      <br>
-      <br>
-      In July 2024 I graduated from <a class="font-medium" href="https://www.polimi.it/">PoliMi</a> with
-      a Master's in Computer Science and Engineering. My thesis focused on exploring the potential of lightweight LLMs
-      for medication and timeline extraction. This work led to <a class="font-medium text-slate-300"
-                                                                  href="https://aclanthology.org/2024.icnlsp-1.47/">a
-      published paper on using LLMs to process medical data</a>, and we developed a web application that was tested in
-      Italian hospitals to validate the research.
+        <!-- Original hardcoded Projects -->
+        <div class="drop-shadow-xl flex flex-col gap-2">
+          <div class="font-bold">Project Demos</div>
+          <ul class="list-disc pl-5">
+            @for (project of projects; track project.name) {
+              <li>
+                <a [href]="project.link"><span class="font-bold">{{ project.label }}</span></a>
+                – {{ project.description }}
+              </li>
+            }
+          </ul>
+        </div>
+      }
 
-    </div>
-    <div class="drop-shadow-xl flex flex-col gap-2">
-      <div class="font-bold">
-        Project Demos
-      </div>
-      <ul class="list-disc pl-5">
-        @for (project of projects; track project.name) {
-          <li>
-            <a [href]="project.link"><span class="font-bold">{{ project.label }}</span></a>
-            – {{ project.description }}
-          </li>
-        }
-
-      </ul>
-    </div>
-
-    <div class="drop-shadow-xl flex flex-col gap-2 w-full">
-      <div class="font-bold">
-        Technologies I'm confident with
-      </div>
-      <code class="flex flex-wrap text-sm gap-3">
-
-        @for (skill of skills; track skill.name) {
-          <div class="flex gap-3 w-36">
-            >
-            <div class=" justify-between">
-              <span>{{ skill.name }}</span>
-
-              <div class="">
-                @for (level of Array(skill.level).keys(); track $index) {
-                  <span class="text-green-600">&#x25AE;</span>
-                }
-                @for (level of Array(7 - skill.level).keys(); track $index) {
-                  <span>&#x25AF;</span>
-                }
+      <!-- Technologies Section (remains hardcoded) -->
+      <div class="drop-shadow-xl flex flex-col gap-2 w-full">
+        <div class="font-bold">Technologies I'm confident with</div>
+        <code class="flex flex-wrap text-sm gap-3">
+          @for (skill of skills; track skill.name) {
+            <div class="flex gap-3 w-36">
+              >
+              <div class=" justify-between">
+                <span>{{ skill.name }}</span>
+                <div class="">
+                  @for (level of Array(skill.level).keys(); track $index) {
+                    <span class="text-green-600">&#x25AE;</span>
+                  }
+                  @for (level of Array(7 - skill.level).keys(); track $index) {
+                    <span>&#x25AF;</span>
+                  }
+                </div>
               </div>
             </div>
-          </div>
-
-        }
-      </code>
-    </div>
-
-    <div class="drop-shadow-xl">
-      <div class="font-bold">
-        Technologies I'm Learning
+          }
+        </code>
       </div>
-      <code class="flex flex-wrap text-sm gap-3">
 
-        @for (skill of learning; track skill.name) {
-          <div class="flex gap-3 w-36">
-            >
-            <div class=" justify-between">
-              <span>{{ skill.name }}</span>
-
-              <div class="">
-                @for (level of Array(skill.level).keys(); track $index) {
-                  <span class="text-green-600">&#x25AE;</span>
-                }
-                @for (level of Array(7 - skill.level).keys(); track $index) {
-                  <span>&#x25AF;</span>
-                }
+      <div class="drop-shadow-xl">
+        <div class="font-bold">Technologies I'm Learning</div>
+        <code class="flex flex-wrap text-sm gap-3">
+          @for (skill of learning; track skill.name) {
+            <div class="flex gap-3 w-36">
+              >
+              <div class=" justify-between">
+                <span>{{ skill.name }}</span>
+                <div class="">
+                  @for (level of Array(skill.level).keys(); track $index) {
+                    <span class="text-green-600">&#x25AE;</span>
+                  }
+                  @for (level of Array(7 - skill.level).keys(); track $index) {
+                    <span>&#x25AF;</span>
+                  }
+                </div>
               </div>
             </div>
-          </div>
-        }
-      </code>
-    </div>
-
+          }
+        </code>
+      </div>
+    }
 
   </div>
 </div>
