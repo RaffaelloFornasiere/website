@@ -8,11 +8,18 @@ Your website now fetches content from a Google Doc named "Website-content" in yo
 - `[SUBTITLE]` - Your subtitle/tagline
 - `[ABOUT ME]` - Your about section with automatic link detection
 - `[PROJECT DEMOS]` - Your projects list with links
+- Any custom sections marked with `[SECTION_NAME]`
 
 The parser automatically:
 - Detects and formats links
 - Preserves bullet lists
 - Maintains text formatting
+- Auto-detects sections based on bracketed headers
+
+Additionally, the website serves your resume PDF directly from Google Drive:
+- Place your resume PDF in the "website" folder in Google Drive
+- The file should contain "resume" or "cv" in its name
+- The resume link will automatically fetch the PDF from Drive
 
 ## To Run the Application
 

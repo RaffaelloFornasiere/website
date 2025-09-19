@@ -69,6 +69,68 @@ app.get('/api/google-docs/content', async (req, res) => {
   }
 });
 
+app.get('/api/resume', async (req, res) => {
+  try {
+    if (!authClient) {
+      await initializeAuth();
+    }
+
+    const drive = google.drive({ version: 'v3', auth: authClient });
+
+    // Search for the resume PDF in the website folder
+    // First, find the website folder
+    const folderResponse = await drive.files.list({
+      q: "name='website' and mimeType='application/vnd.google-apps.folder'",
+      fields: 'files(id, name)',
+    });
+
+    if (folderResponse.data.files.length === 0) {
+      return res.status(404).json({ error: 'Website folder not found' });
+    }
+
+    const folderId = folderResponse.data.files[0].id;
+
+    // Search for PDF files in the folder
+    const pdfResponse = await drive.files.list({
+      q: `'${folderId}' in parents and (mimeType='application/pdf' and (name contains 'resume' or name contains 'cv' or name contains 'CV' or name contains 'Resume'))`,
+      fields: 'files(id, name, mimeType)',
+    });
+
+    if (pdfResponse.data.files.length === 0) {
+      // If no resume found, try to find any PDF in the folder
+      const anyPdfResponse = await drive.files.list({
+        q: `'${folderId}' in parents and mimeType='application/pdf'`,
+        fields: 'files(id, name, mimeType)',
+      });
+
+      if (anyPdfResponse.data.files.length === 0) {
+        return res.status(404).json({ error: 'Resume PDF not found in website folder' });
+      }
+
+      // Use the first PDF found
+      pdfResponse.data.files = anyPdfResponse.data.files;
+    }
+
+    const resumeFile = pdfResponse.data.files[0];
+
+    // Get the file content
+    const fileResponse = await drive.files.get({
+      fileId: resumeFile.id,
+      alt: 'media',
+    }, { responseType: 'stream' });
+
+    // Set appropriate headers
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${resumeFile.name}"`);
+
+    // Stream the file to the response
+    fileResponse.data.pipe(res);
+  } catch (error) {
+    console.error('Error fetching resume:', error);
+    res.status(500).json({ error: 'Failed to fetch resume' });
+  }
+});
+
 // Serve Angular app in production
 app.use(express.static(path.join(__dirname, 'dist/website/browser')));
 
