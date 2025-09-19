@@ -70,11 +70,11 @@ app.get('/api/google-docs/content', async (req, res) => {
 });
 
 // Serve Angular app in production
-app.use(express.static(path.join(__dirname, 'dist/website')));
+app.use(express.static(path.join(__dirname, 'dist/website/browser')));
 
 // Catch all route for Angular routing
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/website/index.html'));
+  res.sendFile(path.join(__dirname, 'dist/website/browser/index.html'));
 });
 
 app.listen(PORT, async () => {

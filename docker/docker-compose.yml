@@ -1,10 +1,16 @@
 name: website
 
 services:
-  angular-app:
+  web:
     build:
       context: ..
       dockerfile: docker/Dockerfile
     ports:
-      - "8888:80"
+      - "8888:3000"
     restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    volumes:
+      # Mount credentials file for security (optional - can also bake into image)
+      - ../credentials.json:/app/credentials.json:ro

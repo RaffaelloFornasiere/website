@@ -1,13 +1,28 @@
 # Stage 1: Build the Angular app
 FROM node:20 AS build
 WORKDIR /app
-RUN ls
-COPY ../package.json /app
-RUN npm install
-COPY .. /app
-RUN npm run build --configuration=production
+COPY package*.json ./
+RUN npm ci --legacy-peer-deps
+COPY . .
+RUN npm run build
 
-## Stage 2: Serve with NGINX
-FROM nginx:latest
-COPY --from=build /app/dist/website/browser /usr/share/nginx/html
-EXPOSE 80
+# Stage 2: Production image with Node.js server and built Angular app
+FROM node:20-slim
+WORKDIR /app
+
+# Copy package files and install production dependencies
+COPY package*.json ./
+RUN npm ci --only=production --legacy-peer-deps
+
+# Copy the server file and credentials
+COPY server.js ./
+COPY credentials.json ./
+
+# Copy the built Angular app from the build stage
+COPY --from=build /app/dist ./dist
+
+# Expose port 3000 for the Node.js server
+EXPOSE 3000
+
+# Start the Node.js server
+CMD ["node", "server.js"]

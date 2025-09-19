@@ -1,59 +1,148 @@
-# Website
+# Personal Portfolio Website
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.4.
+A modern, dynamic portfolio website built with Angular that integrates with Google Docs for content management. This allows you to update your website content directly from a Google Doc without touching code.
 
-## Development server
+## Features
 
-To start a local development server, run:
+- **Dynamic Content Management**: Content is fetched from a Google Doc, allowing easy updates without code changes
+- **Auto-Section Detection**: Automatically detects and renders sections from your Google Doc based on formatting
+- **Responsive Design**: Built with Tailwind CSS for a clean, mobile-friendly interface
+- **Interactive Background**: TypeScript-powered animated text effect in the background
+- **Google Drive Integration**: Secure server-side integration with Google Drive API using service account authentication
+- **Docker Support**: Fully containerized for easy deployment
 
-```bash
-ng serve
+## Architecture
+
+```
+Frontend (Angular) <-> Backend (Node.js/Express) <-> Google Docs API
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Frontend**: Angular 19 application with signals for state management
+- **Backend**: Express server that handles Google API authentication and protects credentials
+- **Content Source**: Google Doc with structured sections that are parsed and displayed
 
-## Code scaffolding
+## Prerequisites
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- Node.js 20+
+- npm
+- Google Cloud Service Account with access to Google Docs API
+- A Google Doc named "Website-content" with your portfolio content
 
+## Google Docs Setup
+
+1. Create a Google Doc named "Website-content" in your Google Drive
+2. Share it with your service account email
+3. Structure your content using section markers like `[TITLE]`, `[SUBTITLE]`, `[ABOUT ME]`, etc.
+4. The parser will automatically detect:
+   - Links in your text
+   - Bullet lists
+   - Section breaks
+
+## Local Development
+
+### Initial Setup
+
+1. Clone the repository
+2. Install dependencies:
 ```bash
-ng generate component component-name
+npm install
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+3. Place your `credentials.json` (Google service account key) in the root directory
 
+### Running the Application
+
+Start both the backend server and Angular dev server:
 ```bash
-ng generate --help
+npm run dev
 ```
 
-## Building
-
-To build the project run:
-
+Or run them separately:
 ```bash
-ng build
+# Backend server (port 3000)
+npm run server
+
+# Angular dev server (port 4200)
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Visit `http://localhost:4200` to see your website.
 
-## Running unit tests
+## Docker Deployment
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+### Build and Run with Docker Compose
 
 ```bash
-ng e2e
+cd docker
+docker-compose up --build
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+The application will be available at `http://localhost:8888`
+
+### Docker Configuration
+
+The Docker setup includes:
+- Multi-stage build for optimized image size
+- Node.js server with Express
+- Built Angular application served by the Node.js server
+- Google credentials mounted as a volume (or baked into the image)
+
+## Available Scripts
+
+- `npm start` - Start Angular development server
+- `npm run server` - Start backend Node.js server
+- `npm run dev` - Start both servers concurrently
+- `npm run build` - Build Angular application for production
+- `npm test` - Run unit tests
+
+## Project Structure
+
+```
+website/
+├── src/                    # Angular source code
+│   ├── app/
+│   │   ├── features/
+│   │   │   └── home/      # Main portfolio component
+│   │   └── services/
+│   │       └── google-docs.service.ts  # Google Docs integration
+├── server.js              # Express backend server
+├── credentials.json       # Google service account credentials (not in git)
+├── docker/                # Docker configuration
+│   ├── Dockerfile
+│   └── docker-compose.yml
+└── public/                # Static assets
+```
+
+## Content Management
+
+Edit your Google Doc to update website content. The system supports:
+- **Title & Subtitle**: Header information
+- **About Me**: Personal introduction with automatic link detection
+- **Project Demos**: List of projects with descriptions and links
+- **Custom Sections**: Any section marked with `[SECTION_NAME]` will be auto-detected
+- **Technologies**: Hardcoded skills section (remains in component)
+
+## Security Notes
+
+- Never commit `credentials.json` to version control
+- The backend server protects your Google credentials from client exposure
+- Use environment variables for production deployments
+- Consider using Google Secret Manager for production credentials
+
+## Technologies Used
+
+- **Frontend**: Angular 19, TypeScript, Tailwind CSS
+- **Backend**: Node.js, Express
+- **APIs**: Google Drive API v3, Google Docs API v1
+- **Build Tools**: Angular CLI, Docker
+- **State Management**: Angular Signals
+
+## License
+
+This project is a personal portfolio website. Feel free to use it as a template for your own portfolio.
 
 ## Additional Resources
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- [Google Docs API Documentation](https://developers.google.com/docs/api)
+- [Angular Documentation](https://angular.dev)
+- [Setting up Google Service Account](https://cloud.google.com/iam/docs/service-accounts-create)
