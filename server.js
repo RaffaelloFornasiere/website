@@ -60,6 +60,7 @@ app.get('/api/google-docs/content', async (req, res) => {
     // Get document content
     const doc = await docs.documents.get({
       documentId: docId,
+      includeTabsContent: true,
     });
 
     res.json(doc.data);

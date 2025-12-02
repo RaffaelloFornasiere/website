@@ -2,6 +2,7 @@ import {HttpClient} from '@angular/common/http';
 import {AfterViewInit, Component, effect, ElementRef, inject, NgZone, OnInit, signal, ViewChild} from '@angular/core';
 import {GoogleDocsService, DocumentContent, AutoSection} from '../../services/google-docs.service';
 import {CommonModule} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -15,12 +16,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild("textContainer") textContainer!: ElementRef<HTMLDivElement>
   private http = inject(HttpClient);
   private googleDocsService = inject(GoogleDocsService);
+  private route = inject(ActivatedRoute);
   private ngZone = inject(NgZone);
   displayText = signal('');
   text = signal('');
   documentContent = signal<DocumentContent | null>(null);
   loading = signal(true);
   error = signal<string | null>(null)
+  activeTabTitle = signal<string>('');
 
   viewInitialized = signal(false);
 
@@ -92,6 +95,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.text.set(data);
     });
 
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.activeTabTitle.set(params['tab']);
+      }
+    });
+
     this.fetchGoogleDocContent();
   }
 
@@ -101,23 +110,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.documentContent.set(content);
         this.loading.set(false);
 
-        // Update projects from Google Doc if available
-        if (content.projectDemos?.elements) {
-          const projects = content.projectDemos.elements
-            .filter(el => el.type === 'list')
-            .map(el => {
-              const parts = el.content.split(' – ');
-              const titleParts = parts[0]?.match(/(.*?)\s*(?:\((.*?)\))?$/);
-              return {
-                name: titleParts?.[1]?.toLowerCase().replace(/\s+/g, '-') || '',
-                label: titleParts?.[1] || parts[0] || '',
-                description: parts[1] || '',
-                link: content.projectDemos?.elements?.find(link =>
-                  link.type === 'link' && el.content.includes(link.content)
-                )?.url
-              };
-            });
-          this.projects = projects;
+        // Set default tab if none selected
+        if (!this.activeTabTitle() && content.pages.length > 0) {
+          this.activeTabTitle.set(content.pages[0].title);
         }
       },
       error: (err) => {
@@ -151,16 +146,26 @@ export class HomeComponent implements OnInit, AfterViewInit {
     return html;
   }
 
-  formatListItem(content: string, elements: any[]): string {
+  formatListItem(content: string, item: any): string {
     let html = content;
 
     // Find and replace links in the list item
-    elements.forEach((element: any) => {
-      if (element.type === 'link' && element.url && content.includes(element.content)) {
-        const linkHtml = `<a href="${element.url}" class="font-bold">${element.content}</a>`;
-        html = html.replace(element.content, linkHtml);
-      }
-    });
+    if (item.links) {
+      item.links.forEach((element: any) => {
+        if (element.type === 'link' && element.url && content.includes(element.content)) {
+          const linkHtml = `<a href="${element.url}" class="font-bold">${element.content}</a>`;
+          html = html.replace(element.content, linkHtml);
+        }
+      });
+    } else if (Array.isArray(item)) {
+       // Fallback for legacy calls if any (though we updated the template)
+       item.forEach((element: any) => {
+        if (element.type === 'link' && element.url && content.includes(element.content)) {
+          const linkHtml = `<a href="${element.url}" class="font-bold">${element.content}</a>`;
+          html = html.replace(element.content, linkHtml);
+        }
+      });
+    }
 
     // Format the list item: bold title before the dash
     const parts = html.split(' – ');
@@ -173,35 +178,37 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   getTitleContent(): string {
     const content = this.documentContent();
-    if (!content) return '';
+    if (!content || content.pages.length === 0) return '';
 
-    // Check for TITLE in sections array
-    const titleSection = content.sections?.find(s => s.title.toUpperCase() === 'TITLE');
-    if (titleSection) return titleSection.content;
-
-    // Fallback to legacy format
-    return content.title?.content || '';
+    // Check for TITLE in the first page (Home) sections
+    const homeSections = content.pages[0].sections;
+    const titleSection = homeSections.find(s => s.title.toUpperCase() === 'TITLE');
+    return titleSection ? titleSection.content : '';
   }
 
   getSubtitleContent(): string {
     const content = this.documentContent();
-    if (!content) return '';
+    if (!content || content.pages.length === 0) return '';
 
-    // Check for SUBTITLE in sections array
-    const subtitleSection = content.sections?.find(s => s.title.toUpperCase() === 'SUBTITLE');
-    if (subtitleSection) return subtitleSection.content;
-
-    // Fallback to legacy format
-    return content.subtitle?.content || '';
+    // Check for SUBTITLE in the first page (Home) sections
+    const homeSections = content.pages[0].sections;
+    const subtitleSection = homeSections.find(s => s.title.toUpperCase() === 'SUBTITLE');
+    return subtitleSection ? subtitleSection.content : '';
   }
 
   getContentSections(): AutoSection[] {
     const content = this.documentContent();
-    if (!content?.sections) return [];
+    if (!content?.pages) return [];
+
+    // Find active page or default to the first one
+    const activePage = content.pages.find(p => p.title === this.activeTabTitle()) || content.pages[0];
+    const sections = activePage.sections;
+
+    if (!sections) return [];
 
     // Filter out TITLE and SUBTITLE as they're displayed in the header
     // Also filter out Technologies sections as requested
-    return content.sections.filter(s => {
+    return sections.filter(s => {
       const upperTitle = s.title.toUpperCase();
       return upperTitle !== 'TITLE' &&
              upperTitle !== 'SUBTITLE' &&

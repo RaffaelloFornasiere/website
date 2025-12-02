@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 
 export interface ParsedSection {
   type: string;
@@ -14,6 +14,7 @@ export interface ParsedElement {
   content: string;
   url?: string;
   items?: string[];
+  links?: ParsedElement[];
 }
 
 export interface AutoSection {
@@ -23,13 +24,14 @@ export interface AutoSection {
   isList?: boolean;
 }
 
-export interface DocumentContent {
+export interface DocPage {
+  id: string;
+  title: string;
   sections: AutoSection[];
-  // Legacy interface for backward compatibility
-  title?: ParsedSection;
-  subtitle?: ParsedSection;
-  aboutMe?: ParsedSection;
-  projectDemos?: ParsedSection;
+}
+
+export interface DocumentContent {
+  pages: DocPage[];
 }
 
 @Injectable({
@@ -37,19 +39,52 @@ export interface DocumentContent {
 })
 export class GoogleDocsService {
   private apiUrl = '/api/google-docs';
+  private content$: Observable<DocumentContent> | null = null;
 
   constructor(private http: HttpClient) {}
 
   getDocumentContent(): Observable<DocumentContent> {
-    return this.http.get<any>(`${this.apiUrl}/content`).pipe(
-      map(response => this.parseDocument(response))
-    );
+    if (!this.content$) {
+      this.content$ = this.http.get<any>(`${this.apiUrl}/content`).pipe(
+        map(response => this.parseDocument(response)),
+        shareReplay(1)
+      );
+    }
+    return this.content$;
   }
 
   private parseDocument(docData: any): DocumentContent {
+    let pages: DocPage[] = [];
+
+    // Check for new "Tabs" feature
+    if (docData.tabs && docData.tabs.length > 0) {
+      pages = docData.tabs.map((tab: any) => {
+        const content = tab.documentTab?.body?.content || [];
+        const parsed = this.parseBodyContent(content);
+        
+        return {
+          id: tab.tabProperties?.tabId || 'unknown',
+          title: tab.tabProperties?.title || 'Untitled',
+          sections: parsed.sections
+        };
+      });
+    } else {
+      // Fallback to single-doc structure as one page
+      const content = docData.body?.content || [];
+      const parsed = this.parseBodyContent(content);
+      
+      pages.push({
+        id: 'main',
+        title: 'Home',
+        sections: parsed.sections
+      });
+    }
+
+    return { pages };
+  }
+
+  private parseBodyContent(body: any[]): { sections: AutoSection[] } {
     const autoSections: AutoSection[] = [];
-    const legacySections: DocumentContent = { sections: [] };
-    const body = docData.body?.content || [];
 
     let currentSection: AutoSection | null = null;
     let currentText = '';
@@ -95,9 +130,6 @@ export class GoogleDocsService {
             currentSection.elements = currentElements;
             currentSection.isList = isList;
             autoSections.push(currentSection);
-
-            // Also save to legacy format for backward compatibility
-            this.saveLegacySection(legacySections, currentSection.title, currentText, currentElements);
           }
 
           // Start new section
@@ -117,24 +149,14 @@ export class GoogleDocsService {
             currentElements.push({
               type: 'list',
               content: trimmedText,
-              items: [trimmedText]
+              items: [trimmedText],
+              links: elements // Attach detected links to the list item
             });
             // For lists, append with newline for proper formatting
             currentText += (currentText ? '\n' : '') + '• ' + trimmedText;
-          } else if (currentSection || autoSections.length === 0) {
-            // Regular paragraph - add to current section or create default if none exists
-            if (!currentSection && autoSections.length === 0) {
-              // Create a default section for content before first header
-              currentSection = {
-                title: 'Introduction',
-                content: '',
-                elements: []
-              };
-            }
-            if (currentSection) {
-              currentText += (currentText ? '\n\n' : '') + trimmedText;
-              currentElements.push(...elements);
-            }
+          } else if (currentSection) {
+            currentText += (currentText ? '\n\n' : '') + trimmedText;
+            currentElements.push(...elements);
           }
         }
       }
@@ -146,40 +168,8 @@ export class GoogleDocsService {
       (currentSection as AutoSection).elements = currentElements;
       (currentSection as AutoSection).isList = isList;
       autoSections.push(currentSection as AutoSection);
-      this.saveLegacySection(legacySections, (currentSection as AutoSection).title, currentText, currentElements);
     }
-
-    // Return both new auto-detected sections and legacy format
-    legacySections.sections = autoSections;
-    return legacySections;
-  }
-
-  private saveLegacySection(
-    sections: DocumentContent,
-    sectionName: string,
-    text: string,
-    elements: ParsedElement[]
-  ): void {
-    const section: ParsedSection = {
-      type: sectionName,
-      content: text.trim(),
-      elements: elements.length > 0 ? elements : undefined
-    };
-
-    // Map to legacy fields for backward compatibility
-    switch (sectionName.toUpperCase()) {
-      case 'TITLE':
-        sections.title = section;
-        break;
-      case 'SUBTITLE':
-        sections.subtitle = section;
-        break;
-      case 'ABOUT ME':
-        sections.aboutMe = section;
-        break;
-      case 'PROJECT DEMOS':
-        sections.projectDemos = section;
-        break;
-    }
+    
+    return { sections: autoSections };
   }
 }
