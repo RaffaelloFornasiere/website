@@ -1,0 +1,6 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem; /* equivalent to gap-10 in tailwind */
+  width: 100%;
+}

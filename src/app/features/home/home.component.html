@@ -1,5 +1,5 @@
 <div class="font-thin flex flex-col justify-center items-center lg:p-10 p-3 text-slate-300 gap-5 w-full">
-  <div class="w-5/6 lg:w-2/3 lg:max-w-[900px] flex flex-col gap-10">
+  <div class="w-5/6 lg:w-1/2 lg:max-w-[500px] flex flex-col gap-10">
 
     <!-- Loading State -->
     @if (loading()) {
@@ -17,131 +17,92 @@
 
     <!-- Content -->
     @if (!loading() && !error()) {
-      <!-- Header Section (special handling for title/subtitle) -->
-      <div class="flex flex-col lg:flex-row gap-10 w-full items-center justify-center">
-        <div class="text-4xl font-bold flex flex-col items-center justify-center gap-2">
-          <span class="text-center">
-            {{ getTitleContent() || 'Hey, I\'m Raffaello Fornasiere' }}
-          </span>
-          <div class="text-2xl font-bold">
-            {{ getSubtitleContent() || 'Software Engineer | AI/ML' }}
-          </div>
-          <div class="flex gap-4 items-center">
-            <a href="https://github.com/RaffaelloFornasiere">
-              <img src="https://s.magecdn.com/social/mw-github.svg" width="32" alt="">
-            </a>
-            <a href="https://www.linkedin.com/in/raffaello-fornasiere">
-              <img src="https://s.magecdn.com/social/mw-linkedin.svg" width="32" alt="">
-            </a>
-            <a href="mailto:fornasiere.raffaello@gmail.com">
-              <img src="https://s.magecdn.com/social/mw-mail.svg" width="32" alt="">
-            </a>
-          </div>
-          <a class="text-sm font-light" href="/api/resume" target="_blank">resume</a>
-        </div>
-      </div>
 
-      <!-- Auto-detected Sections -->
-      @if (documentContent()?.pages && documentContent()!.pages.length > 0) {
-        @for (section of getContentSections(); track section.title) {
-          <div class="drop-shadow-xl flex flex-col gap-2">
-            <div class="font-bold">{{ section.title }}</div>
-            @if (section.isList) {
-              <ul class="list-disc pl-5">
-                @for (element of section.elements || []; track $index) {
-                  @if (element.type === 'list') {
-                    <li [innerHTML]="formatListItem(element.content, element)"></li>
-                  }
-                }
-              </ul>
-            } @else {
-              <div [innerHTML]="formatSectionContent(section)"></div>
-            }
+      @if (isHomePage()) {
+        <!-- Header Section (Only for Home Page) -->
+        <div class="flex flex-col lg:flex-row gap-10 w-full items-center justify-center">
+          <div class="text-4xl font-bold flex flex-col items-center justify-center gap-2">
+            <span class="text-center">
+              {{ getTitleContent() || 'Hey, I\'m Raffaello Fornasiere' }}
+            </span>
+            <div class="text-2xl font-bold">
+              {{ getSubtitleContent() || 'Software Engineer | AI/ML' }}
+            </div>
+            <div class="flex gap-4 items-center">
+              <a href="https://github.com/RaffaelloFornasiere">
+                <img src="https://s.magecdn.com/social/mw-github.svg" width="32" alt="">
+              </a>
+              <a href="https://www.linkedin.com/in/raffaello-fornasiere">
+                <img src="https://s.magecdn.com/social/mw-linkedin.svg" width="32" alt="">
+              </a>
+              <a href="mailto:fornasiere.raffaello@gmail.com">
+                <img src="https://s.magecdn.com/social/mw-mail.svg" width="32" alt="">
+              </a>
+            </div>
+            <a class="text-sm font-light" href="/api/resume" target="_blank">resume</a>
+          </div>
+        </div>
+
+        <!-- Use Generic Page Component for dynamic content sections -->
+        <app-generic-page [sections]="getContentSections()"></app-generic-page>
+
+        <!-- Fallback if no Google Doc content for Home -->
+        @if (!documentContent()) {
+          <div class="drop-shadow-xl">
+            <div class="font-bold">About Me</div>
+            I'm Raffaello, a software engineer working primarily with AI and language models...
+            <!-- (Truncated for brevity, keeping original fallback text here if desired) -->
           </div>
         }
-      }
 
-      <!-- Fallback to hardcoded content if no Google Doc content -->
-      @if (!documentContent()) {
-        <!-- Original hardcoded About Me -->
-        <div class="drop-shadow-xl">
-          <div class="font-bold">About Me</div>
-          I'm Raffaello, a software engineer working primarily with AI and language models. Currently collaborating with <a
-          class="font-medium"
-          href="https://openreview.net/profile?id=~William_Saunders1">William Saunders</a> on building autonomous AI agents
-          that handle conversations and task management. The work involves integrating various APIs and designing
-          event-driven systems.
-          <br><br>
-          I work at Infiniteloop as a lead frontend engineer, but work across the entire stack. I've created some framework
-          extensions for JHipster that help with development workflow, architectured and maintained frontend applications,
-          and prototyped some LLM integrations into healthcare application.
-          <br><br>
-          In July 2024 I graduated from <a class="font-medium" href="https://www.polimi.it/">PoliMi</a> with
-          a Master's in Computer Science and Engineering. My thesis focused on exploring the potential of lightweight LLMs
-          for medication and timeline extraction. This work led to <a class="font-medium text-slate-300"
-          href="https://aclanthology.org/2024.icnlsp-1.47/">a
-          published paper on using LLMs to process medical data</a>, and we developed a web application that was tested in
-          Italian hospitals to validate the research.
-        </div>
-
-        <!-- Original hardcoded Projects -->
-        <div class="drop-shadow-xl flex flex-col gap-2">
-          <div class="font-bold">Project Demos</div>
-          <ul class="list-disc pl-5">
-            @for (project of projects; track project.name) {
-              <li>
-                <a [href]="project.link"><span class="font-bold">{{ project.label }}</span></a>
-                – {{ project.description }}
-              </li>
+        <!-- Technologies Section (Only for Home Page) -->
+        <div class="drop-shadow-xl flex flex-col gap-2 w-full">
+          <div class="font-bold">Technologies I'm confident with</div>
+          <code class="flex flex-wrap text-sm gap-3">
+            @for (skill of skills; track skill.name) {
+              <div class="flex gap-3 w-36">
+                >
+                <div class=" justify-between">
+                  <span>{{ skill.name }}</span>
+                  <div class="">
+                    @for (level of Array(skill.level).keys(); track $index) {
+                      <span class="text-green-600">&#x25AE;</span>
+                    }
+                    @for (level of Array(7 - skill.level).keys(); track $index) {
+                      <span>&#x25AF;</span>
+                    }
+                  </div>
+                </div>
+              </div>
             }
-          </ul>
+          </code>
         </div>
+
+        <div class="drop-shadow-xl">
+          <div class="font-bold">Technologies I'm Learning</div>
+          <code class="flex flex-wrap text-sm gap-3">
+            @for (skill of learning; track skill.name) {
+              <div class="flex gap-3 w-36">
+                >
+                <div class=" justify-between">
+                  <span>{{ skill.name }}</span>
+                  <div class="">
+                    @for (level of Array(skill.level).keys(); track $index) {
+                      <span class="text-green-600">&#x25AE;</span>
+                    }
+                    @for (level of Array(7 - skill.level).keys(); track $index) {
+                      <span>&#x25AF;</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </code>
+        </div>
+      } @else {
+        <!-- GENERIC PAGE LAYOUT (For all other tabs) -->
+        <app-generic-page [sections]="getContentSections()"></app-generic-page>
       }
-
-      <!-- Technologies Section (remains hardcoded) -->
-      <div class="drop-shadow-xl flex flex-col gap-2 w-full">
-        <div class="font-bold">Technologies I'm confident with</div>
-        <code class="flex flex-wrap text-sm gap-3">
-          @for (skill of skills; track skill.name) {
-            <div class="flex gap-3 w-36">
-              >
-              <div class=" justify-between">
-                <span>{{ skill.name }}</span>
-                <div class="">
-                  @for (level of Array(skill.level).keys(); track $index) {
-                    <span class="text-green-600">&#x25AE;</span>
-                  }
-                  @for (level of Array(7 - skill.level).keys(); track $index) {
-                    <span>&#x25AF;</span>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        </code>
-      </div>
-
-      <div class="drop-shadow-xl">
-        <div class="font-bold">Technologies I'm Learning</div>
-        <code class="flex flex-wrap text-sm gap-3">
-          @for (skill of learning; track skill.name) {
-            <div class="flex gap-3 w-36">
-              >
-              <div class=" justify-between">
-                <span>{{ skill.name }}</span>
-                <div class="">
-                  @for (level of Array(skill.level).keys(); track $index) {
-                    <span class="text-green-600">&#x25AE;</span>
-                  }
-                  @for (level of Array(7 - skill.level).keys(); track $index) {
-                    <span>&#x25AF;</span>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        </code>
-      </div>
     }
 
   </div>

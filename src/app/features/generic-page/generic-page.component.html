@@ -1,0 +1,18 @@
+<div class="lg:pt-10 pt-3 flex flex-col gap-10 w-full">
+  @for (section of sections; track section.title) {
+    <div class="drop-shadow-xl flex flex-col gap-2">
+      <div class="font-bold">{{ section.title }}</div>
+      @if (section.isList) {
+        <ul class="list-disc pl-5">
+          @for (element of section.elements || []; track $index) {
+            @if (element.type === 'list') {
+              <li [innerHTML]="formatListItem(element.content, element)"></li>
+            }
+          }
+        </ul>
+      } @else {
+        <div [innerHTML]="formatSectionContent(section)"></div>
+      }
+    </div>
+  }
+</div>

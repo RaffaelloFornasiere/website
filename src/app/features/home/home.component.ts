@@ -3,13 +3,14 @@ import {AfterViewInit, Component, effect, ElementRef, inject, NgZone, OnInit, si
 import {GoogleDocsService, DocumentContent, AutoSection} from '../../services/google-docs.service';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
+import { GenericPageComponent } from '../generic-page/generic-page.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
 
   templateUrl: './home.component.html',
-  imports: [CommonModule],
+  imports: [CommonModule, GenericPageComponent],
   styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit, AfterViewInit {
@@ -127,55 +128,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.viewInitialized.set(true);
   }
 
-  formatContent(section: any): string {
-    let html = section.content;
-
-    // Replace links in the content
-    if (section.elements) {
-      section.elements.forEach((element: any) => {
-        if (element.type === 'link' && element.url) {
-          const linkHtml = `<a href="${element.url}" class="font-medium text-slate-300">${element.content}</a>`;
-          html = html.replace(element.content, linkHtml);
-        }
-      });
-    }
-
-    // Convert line breaks to <br>
-    html = html.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
-
-    return html;
-  }
-
-  formatListItem(content: string, item: any): string {
-    let html = content;
-
-    // Find and replace links in the list item
-    if (item.links) {
-      item.links.forEach((element: any) => {
-        if (element.type === 'link' && element.url && content.includes(element.content)) {
-          const linkHtml = `<a href="${element.url}" class="font-bold">${element.content}</a>`;
-          html = html.replace(element.content, linkHtml);
-        }
-      });
-    } else if (Array.isArray(item)) {
-       // Fallback for legacy calls if any (though we updated the template)
-       item.forEach((element: any) => {
-        if (element.type === 'link' && element.url && content.includes(element.content)) {
-          const linkHtml = `<a href="${element.url}" class="font-bold">${element.content}</a>`;
-          html = html.replace(element.content, linkHtml);
-        }
-      });
-    }
-
-    // Format the list item: bold title before the dash
-    const parts = html.split(' – ');
-    if (parts.length > 1 && !html.includes('<a')) {
-      html = `<span class="font-bold">${parts[0]}</span> – ${parts.slice(1).join(' – ')}`;
-    }
-
-    return html;
-  }
-
   getTitleContent(): string {
     const content = this.documentContent();
     if (!content || content.pages.length === 0) return '';
@@ -216,23 +168,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
   }
 
-  formatSectionContent(section: AutoSection): string {
-    let html = section.content;
-
-    // Replace links in the content
-    if (section.elements) {
-      section.elements.forEach((element: any) => {
-        if (element.type === 'link' && element.url) {
-          const linkHtml = `<a href="${element.url}" class="font-medium text-slate-300">${element.content}</a>`;
-          html = html.replace(element.content, linkHtml);
-        }
-      });
-    }
-
-    // Convert line breaks to <br>
-    html = html.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
-
-    return html;
+  isHomePage(): boolean {
+    const active = this.activeTabTitle();
+    return !active || active.toLowerCase() === 'home';
   }
 
   protected readonly Array = Array;
