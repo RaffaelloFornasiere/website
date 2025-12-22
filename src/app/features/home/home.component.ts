@@ -63,31 +63,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     {name: "Tailwind", level: 7},
     {name: "Docker", level: 3},
     {name: "LLMs", level: 6},
-  ]
-
-  learning = [
-    {name: "Kubernetes", level: 1},
     {name: "Vue", level: 2},
   ]
 
-  projects = [
-    {
-      name: "sage-v2",
-      label: "Sage V2",
-      description: "A proactive AI agent with tool integration, conversation management, and autonomous task handling using Claude",
-    },
-    {
-      name: "llmed",
-      label: "Medical Data Extraction with LLMs",
-      description: "Thesis project: Extracting medical data from unstructured text using large language models. (the UI is ugly but these were the requirements)",
-      link: "https://llmed.rf-98.com"
-    },
-    {
-      name: "prompt-log",
-      label: "Prompt Log",
-      description: "PromptLog is a tool for managing and keeping track of AI prompts",
-      link: "https://prompt-log.rf-98.com"
-    },
+  learning = [
+    {name: "PyTorch", level: 2},
   ]
 
 

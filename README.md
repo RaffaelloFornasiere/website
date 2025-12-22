@@ -1,68 +1,56 @@
 # Personal Portfolio Website
 
-A modern, dynamic portfolio website built with Angular that integrates with Google Docs for content management. This allows you to update your website content directly from a Google Doc without touching code.
+A modern, dynamic portfolio website built with Angular that leverages Google Docs for content management. This allows you to update your website's pages and content directly from a Google Doc with tabs, without needing to modify or redeploy code.
 
 ## Features
 
-- **Dynamic Content Management**: Content is fetched from a Google Doc, allowing easy updates without code changes
-- **Auto-Section Detection**: Automatically detects and renders sections from your Google Doc based on formatting
-- **Responsive Design**: Built with Tailwind CSS for a clean, mobile-friendly interface
-- **Interactive Background**: TypeScript-powered animated text effect in the background
-- **Google Drive Integration**: Secure server-side integration with Google Drive API using service account authentication
-- **Docker Support**: Fully containerized for easy deployment
+-   **Dynamic Multi-Page Content**: Content for different sections/pages of the website is fetched from a single Google Doc, where each **tab** in the doc represents a distinct page.
+-   **Adaptive Page Layouts**:
+    *   The "Home" page (from the Google Doc tab named "Home") features a custom layout with a hero header, social links, and a hardcoded technologies section.
+    *   All other pages (from other Google Doc tabs) use a generic layout that renders only the content defined within that specific tab.
+-   **Auto-Section Detection**: Automatically detects and renders content sections from your Google Doc based on `[SECTION_TITLE]` markers.
+-   **Intelligent Content Parsing**: Automatically detects and formats links, preserves bullet lists, and maintains text formatting from Google Docs.
+-   **Responsive Design**: Built with Tailwind CSS for a clean, mobile-friendly interface, including responsive navigation for multi-page content.
+-   **Google Drive Integration**: Secure server-side integration with Google Drive and Docs APIs using service account authentication.
+-   **Docker Support**: Fully containerized for easy deployment.
 
-## Architecture
+## How It Works
 
-```
-Frontend (Angular) <-> Backend (Node.js/Express) <-> Google Docs API
-```
+This project uses a Node.js/Express backend to securely fetch content from a designated Google Doc. An Angular frontend then parses this content, structuring it into pages based on Google Doc tabs, and renders it dynamically.
 
-- **Frontend**: Angular 19 application with signals for state management
-- **Backend**: Express server that handles Google API authentication and protects credentials
-- **Content Source**: Google Doc with structured sections that are parsed and displayed
+For detailed instructions on how to set up Google API access, structure your Google Doc, and manage your website's content, please refer to the **[Google Docs Integration Setup Guide](GOOGLE_DOCS_SETUP.md)**.
 
 ## Prerequisites
 
-- Node.js 20+
-- npm
-- Google Cloud Service Account with access to Google Docs API
-- A Google Doc named "Website-content" with your portfolio content
-
-## Google Docs Setup
-
-1. Create a Google Doc named "Website-content" in your Google Drive
-2. Share it with your service account email
-3. Structure your content using section markers like `[TITLE]`, `[SUBTITLE]`, `[ABOUT ME]`, etc.
-4. The parser will automatically detect:
-   - Links in your text
-   - Bullet lists
-   - Section breaks
+-   Node.js 20+
+-   npm
+-   Access to a Google Cloud Project for API credentials (see setup guide)
+-   A Google Doc named "Website-content" for your portfolio content
 
 ## Local Development
 
 ### Initial Setup
 
-1. Clone the repository
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Place your `credentials.json` (Google service account key) in the root directory
+1.  Clone the repository.
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  **Configure Google API Access**: Follow the steps in **[Google Docs Integration Setup Guide](GOOGLE_DOCS_SETUP.md)** to obtain your `credentials.json` file and place it in the project's root directory.
 
 ### Running the Application
 
-Start both the backend server and Angular dev server:
+Start both the backend server (which handles Google API calls) and the Angular development server:
 ```bash
 npm run dev
 ```
 
-Or run them separately:
+Alternatively, you can run them separately:
 ```bash
-# Backend server (port 3000)
+# Start the backend server (runs on port 3000 by default)
 npm run server
 
-# Angular dev server (port 4200)
+# Start the Angular development server (runs on port 4200 by default)
 npm start
 ```
 
@@ -77,23 +65,23 @@ cd docker
 docker-compose up --build
 ```
 
-The application will be available at `http://localhost:8888`
+The application will typically be available at `http://localhost:8888` (check `docker-compose.yml` for specific port mapping).
 
 ### Docker Configuration
 
 The Docker setup includes:
-- Multi-stage build for optimized image size
-- Node.js server with Express
-- Built Angular application served by the Node.js server
-- Google credentials mounted as a volume (or baked into the image)
+-   Multi-stage build for optimized image size.
+-   Node.js server with Express.
+-   Built Angular application served by the Node.js server.
+-   Google credentials mounted as a volume (or baked into the image, handle with care!).
 
 ## Available Scripts
 
-- `npm start` - Start Angular development server
-- `npm run server` - Start backend Node.js server
-- `npm run dev` - Start both servers concurrently
-- `npm run build` - Build Angular application for production
-- `npm test` - Run unit tests
+-   `npm start` - Start Angular development server.
+-   `npm run server` - Start backend Node.js server.
+-   `npm run dev` - Start both servers concurrently.
+-   `npm run build` - Build Angular application for production.
+-   `npm test` - Run unit tests.
 
 ## Project Structure
 
@@ -102,40 +90,23 @@ website/
 ├── src/                    # Angular source code
 │   ├── app/
 │   │   ├── features/
-│   │   │   └── home/      # Main portfolio component
+│   │   │   ├── home/           # Main portfolio component (Home page layout)
+│   │   │   └── generic-page/   # Component for generic page content
 │   │   └── services/
-│   │       └── google-docs.service.ts  # Google Docs integration
+│   │       └── google-docs.service.ts  # Google Docs API integration and content parsing
 ├── server.js              # Express backend server
-├── credentials.json       # Google service account credentials (not in git)
-├── docker/                # Docker configuration
-│   ├── Dockerfile
-│   └── docker-compose.yml
+├── GOOGLE_DOCS_SETUP.md   # Detailed guide for Google Docs API and content management
+├── credentials.json       # Google service account credentials (DO NOT COMMIT)
 └── public/                # Static assets
 ```
 
-## Content Management
-
-Edit your Google Doc to update website content. The system supports:
-- **Title & Subtitle**: Header information
-- **About Me**: Personal introduction with automatic link detection
-- **Project Demos**: List of projects with descriptions and links
-- **Custom Sections**: Any section marked with `[SECTION_NAME]` will be auto-detected
-- **Technologies**: Hardcoded skills section (remains in component)
-
-## Security Notes
-
-- Never commit `credentials.json` to version control
-- The backend server protects your Google credentials from client exposure
-- Use environment variables for production deployments
-- Consider using Google Secret Manager for production credentials
-
 ## Technologies Used
 
-- **Frontend**: Angular 19, TypeScript, Tailwind CSS
-- **Backend**: Node.js, Express
-- **APIs**: Google Drive API v3, Google Docs API v1
-- **Build Tools**: Angular CLI, Docker
-- **State Management**: Angular Signals
+-   **Frontend**: Angular 19, TypeScript, Tailwind CSS, Angular Signals, Angular Router
+-   **Backend**: Node.js, Express
+-   **APIs**: Google Drive API v3, Google Docs API v1
+-   **Build Tools**: Angular CLI, Docker, concurrently
+-   **State Management**: Angular Signals
 
 ## License
 
@@ -143,6 +114,6 @@ This project is a personal portfolio website. Feel free to use it as a template 
 
 ## Additional Resources
 
-- [Google Docs API Documentation](https://developers.google.com/docs/api)
-- [Angular Documentation](https://angular.dev)
-- [Setting up Google Service Account](https://cloud.google.com/iam/docs/service-accounts-create)
+-   [Google Docs API Documentation](https://developers.google.com/docs/api)
+-   [Angular Documentation](https://angular.dev)
+-   [Setting up Google Service Account](https://cloud.google.com/iam/docs/service-accounts-create)
