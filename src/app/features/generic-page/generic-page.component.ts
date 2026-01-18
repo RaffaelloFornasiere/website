@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { AutoSection } from '../../services/google-docs.service';
+import { AutoSection, ParsedElement } from '../../services/google-docs.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -29,6 +29,12 @@ export class GenericPageComponent {
     html = html.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
 
     return html;
+  }
+
+  getListItems(section: AutoSection): ParsedElement[] {
+    return (section.elements || []).filter(
+      (element: ParsedElement) => element.type === 'list' && (element.nestingLevel ?? 0) === 0
+    );
   }
 
   formatListItem(content: string, item: any): string {

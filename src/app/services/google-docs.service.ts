@@ -15,6 +15,8 @@ export interface ParsedElement {
   url?: string;
   items?: string[];
   links?: ParsedElement[];
+  nestingLevel?: number;
+  children?: ParsedElement[];
 }
 
 export interface AutoSection {
@@ -90,6 +92,7 @@ export class GoogleDocsService {
     let currentText = '';
     let currentElements: ParsedElement[] = [];
     let isList = false;
+    let listStack: ParsedElement[] = [];
 
     body.forEach((element: any) => {
       if (element.paragraph) {
@@ -142,21 +145,43 @@ export class GoogleDocsService {
           currentText = '';
           currentElements = [];
           isList = false;
+          listStack = [];
         } else if (trimmedText) {
           // Add content to current section
           if (paragraph.bullet) {
             isList = true;
-            currentElements.push({
+            const nestingLevel = paragraph.bullet.nestingLevel ?? 0;
+            const listItem: ParsedElement = {
               type: 'list',
               content: trimmedText,
               items: [trimmedText],
-              links: elements // Attach detected links to the list item
-            });
+              links: elements, // Attach detected links to the list item
+              nestingLevel,
+              children: []
+            };
+            if (nestingLevel === 0) {
+              currentElements.push(listItem);
+              listStack = [listItem];
+            } else {
+              if (listStack.length > nestingLevel) {
+                listStack = listStack.slice(0, nestingLevel);
+              }
+              const parent = listStack[nestingLevel - 1];
+              if (parent) {
+                parent.children = parent.children || [];
+                parent.children.push(listItem);
+              } else {
+                currentElements.push(listItem);
+              }
+              listStack[nestingLevel] = listItem;
+              listStack.length = nestingLevel + 1;
+            }
             // For lists, append with newline for proper formatting
             currentText += (currentText ? '\n' : '') + '• ' + trimmedText;
           } else if (currentSection) {
             currentText += (currentText ? '\n\n' : '') + trimmedText;
             currentElements.push(...elements);
+            listStack = [];
           }
         }
       }
