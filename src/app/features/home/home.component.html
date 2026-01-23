@@ -56,49 +56,49 @@
         }
 
         <!-- Technologies Section (Only for Home Page) -->
-        <div class="drop-shadow-xl flex flex-col gap-2 w-full">
-          <div class="font-bold">Technologies I'm confident with</div>
-          <code class="flex flex-wrap text-sm gap-3">
-            @for (skill of skills; track skill.name) {
-              <div class="flex gap-3 w-36">
-                >
-                <div class=" justify-between">
-                  <span>{{ skill.name }}</span>
-                  <div class="">
-                    @for (level of Array(skill.level).keys(); track $index) {
-                      <span class="text-green-600">&#x25AE;</span>
-                    }
-                    @for (level of Array(7 - skill.level).keys(); track $index) {
-                      <span>&#x25AF;</span>
-                    }
-                  </div>
-                </div>
-              </div>
-            }
-          </code>
-        </div>
+<!--        <div class="drop-shadow-xl flex flex-col gap-2 w-full">-->
+<!--          <div class="font-bold">Technologies I'm confident with</div>-->
+<!--          <code class="flex flex-wrap text-sm gap-3">-->
+<!--            @for (skill of skills; track skill.name) {-->
+<!--              <div class="flex gap-3 w-36">-->
+<!--                >-->
+<!--                <div class=" justify-between">-->
+<!--                  <span>{{ skill.name }}</span>-->
+<!--                  <div class="">-->
+<!--                    @for (level of Array(skill.level).keys(); track $index) {-->
+<!--                      <span class="text-green-600">&#x25AE;</span>-->
+<!--                    }-->
+<!--                    @for (level of Array(7 - skill.level).keys(); track $index) {-->
+<!--                      <span>&#x25AF;</span>-->
+<!--                    }-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            }-->
+<!--          </code>-->
+<!--        </div>-->
 
-        <div class="drop-shadow-xl">
-          <div class="font-bold">Technologies I'm Learning</div>
-          <code class="flex flex-wrap text-sm gap-3">
-            @for (skill of learning; track skill.name) {
-              <div class="flex gap-3 w-36">
-                >
-                <div class=" justify-between">
-                  <span>{{ skill.name }}</span>
-                  <div class="">
-                    @for (level of Array(skill.level).keys(); track $index) {
-                      <span class="text-green-600">&#x25AE;</span>
-                    }
-                    @for (level of Array(7 - skill.level).keys(); track $index) {
-                      <span>&#x25AF;</span>
-                    }
-                  </div>
-                </div>
-              </div>
-            }
-          </code>
-        </div>
+<!--        <div class="drop-shadow-xl">-->
+<!--          <div class="font-bold">Technologies I'm Learning</div>-->
+<!--          <code class="flex flex-wrap text-sm gap-3">-->
+<!--            @for (skill of learning; track skill.name) {-->
+<!--              <div class="flex gap-3 w-36">-->
+<!--                >-->
+<!--                <div class=" justify-between">-->
+<!--                  <span>{{ skill.name }}</span>-->
+<!--                  <div class="">-->
+<!--                    @for (level of Array(skill.level).keys(); track $index) {-->
+<!--                      <span class="text-green-600">&#x25AE;</span>-->
+<!--                    }-->
+<!--                    @for (level of Array(7 - skill.level).keys(); track $index) {-->
+<!--                      <span>&#x25AF;</span>-->
+<!--                    }-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            }-->
+<!--          </code>-->
+<!--        </div>-->
       } @else {
         <!-- GENERIC PAGE LAYOUT (For all other tabs) -->
         <app-generic-page [sections]="getContentSections()"></app-generic-page>
